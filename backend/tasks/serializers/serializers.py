@@ -8,26 +8,43 @@ class UserProfileSerializer(serializers.ModelSerializer):
         fields = ['avatar', 'notification_preferences']
 
 class UserSerializer(serializers.ModelSerializer):
-    profile = UserProfileSerializer(source='userprofile')
+    profile = UserProfileSerializer(source='userprofile', required=False)
 
     class Meta:
         model = User
         fields = ['id', 'username', 'email', 'first_name', 'last_name', 'profile']
-        read_only_fields = ['id']
 
     def create(self, validated_data):
-        profile_data = validated_data.pop('userprofile')
-        user = super().create(validated_data)
+        profile_data = validated_data.pop('userprofile', {})
+        user = User.objects.create(**validated_data)
         UserProfile.objects.create(user=user, **profile_data)
         return user
 
     def update(self, instance, validated_data):
-        profile_data = validated_data.pop('userprofile', None)
-        user = super().update(instance, validated_data)
+        profile_data = validated_data.pop('userprofile', {})
+        # Update user data
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
         
-        if profile_data:
-            UserProfile.objects.update_or_create(
-                user=user,
-                defaults=profile_data
-            )
-        return user
+        # Update profile data
+        profile = instance.userprofile
+        for attr, value in profile_data.items():
+            setattr(profile, attr, value)
+        profile.save()
+        return instance
+
+class ProjectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Project
+        fields = '__all__'
+
+class TaskListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TaskList
+        fields = '__all__'
+
+class TaskSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Task
+        fields = '__all__'

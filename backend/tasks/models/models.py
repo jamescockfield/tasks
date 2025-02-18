@@ -1,9 +1,13 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+def user_avatar_path(instance, filename):
+    # File will be uploaded to MEDIA_ROOT/avatars/user_<id>/<filename>
+    return f'avatars/user_{instance.user.id}/{filename}'
+
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    avatar = models.ImageField(upload_to='avatars/', null=True)
+    avatar = models.ImageField(upload_to=user_avatar_path, null=True)
     notification_preferences = models.JSONField(default=dict)
 
 class Project(models.Model):
