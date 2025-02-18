@@ -24,6 +24,7 @@ class TaskList(models.Model):
 
 class Task(models.Model):
     title = models.CharField(max_length=200)
+    task_list = models.ForeignKey(TaskList, on_delete=models.CASCADE)
     description = models.TextField()
     due_date = models.DateTimeField()
     status = models.CharField(max_length=50)
