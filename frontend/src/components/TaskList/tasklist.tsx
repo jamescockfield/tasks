@@ -10,7 +10,7 @@ import {
   Box,
   CircularProgress
 } from '@mui/material';
-import { useTasks } from '../../hooks/useTasks';
+import { useTasks } from '@/hooks/useTasks';
   
 interface Task {
   id: number;
